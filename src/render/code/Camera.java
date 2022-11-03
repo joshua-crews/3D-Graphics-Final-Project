@@ -1,8 +1,8 @@
 package render.code;
 
-import render.code.gmaths.Mat4;
-import render.code.gmaths.Mat4Transform;
-import render.code.gmaths.Vec3;
+import render.code.gmaths.*;
+import java.awt.event.*;
+import com.jogamp.opengl.awt.GLCanvas;
 
 public class Camera {
   
@@ -50,6 +50,14 @@ public class Camera {
   
   public Vec3 getPosition() {
     return new Vec3(position);
+  }
+  
+  public void setPosition(Vec3 p) {
+    setupCamera(p, target, up);
+  }
+  
+  public void setTarget(Vec3 t) {
+    setupCamera(position, t, up);
   }
   
   public void setCamera(CameraType c) {

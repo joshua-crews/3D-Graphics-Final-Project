@@ -1,13 +1,12 @@
 package render.code;
 
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.util.glsl.ShaderCode;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
-
+import render.code.gmaths.*;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.glsl.*;  
   
 public class Shader {
   
@@ -68,16 +67,20 @@ public class Shader {
     gl.glUniformMatrix4fv(location, 1, false, f, 0);
   }
   
+  public void setVec3(GL3 gl, String name, Vec3 v) {
+    int location = gl.glGetUniformLocation(ID, name);
+    gl.glUniform3f(location, v.x, v.y, v.z);
+  }
+  
   private void display() {
-    if (DISPLAY_SHADERS) {
-      System.out.println("***Vertex shader***");
-      System.out.println(vertexShaderSource);
-      System.out.println("\n***Fragment shader***");
-      System.out.println(fragmentShaderSource);
-    }
+    System.out.println("***Vertex shader***");
+    System.out.println(vertexShaderSource);
+    System.out.println("\n***Fragment shader***");
+    System.out.println(fragmentShaderSource);
   }
   
   private int compileAndLink(GL3 gl) {
+    // gl.glBindVertexArray(1);  // hack to stop link error, since a VAO needs to be bound for shader validation
     String[][] sources = new String[1][1];
     sources[0] = new String[]{ vertexShaderSource };
     ShaderCode vertexShaderCode = new ShaderCode(GL3.GL_VERTEX_SHADER, sources.length, sources);

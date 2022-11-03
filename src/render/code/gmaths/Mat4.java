@@ -70,17 +70,6 @@ public class Mat4 {   // row column formulation
     }
     return result;
   }
-  
-  public static Vec3 multiply(Mat4 m, Vec3 v) {
-    Vec3 result = new Vec3();
-    result.x = m.values[0][0]*v.x + m.values[0][1]*v.y
-               + m.values[0][2]*v.z;
-    result.y = m.values[1][0]*v.x + m.values[1][1]*v.y
-               + m.values[1][2]*v.z;
-    result.z = m.values[2][0]*v.x + m.values[2][1]*v.y
-               + m.values[2][2]*v.z;
-    return result;
-  }
 
   public float[] toFloatArrayForGLSL() {  // col by row
     float[] f = new float[16];
