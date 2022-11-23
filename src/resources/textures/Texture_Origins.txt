@@ -1,3 +1,4 @@
 table_wood_texture.jpg=https://freestocktextures.com/texture/old-wooden-black-boards,1471.html
 granite.jpg=https://freestocktextures.com/texture/granite-sleek-surface,817.html
 wall.jpg=https://freestocktextures.com/texture/rugged-white-wall,1543.html
+egg_textures=https://www.textures.com/download/PBR0388/137253

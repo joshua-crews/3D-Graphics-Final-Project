@@ -4,6 +4,7 @@ import render.code.gmaths.*;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.texture.*;
+import render.code.objects.Egg;
 import render.code.objects.TableLeg;
 import render.code.objects.TableTop;
 
@@ -59,6 +60,7 @@ public class Render_GLEventListener implements GLEventListener {
     table.dispose(gl);
     room.dispose(gl);
     light.dispose(gl);
+    skybox.dispose(gl);
   }
 
   // ***************************************************
@@ -70,6 +72,7 @@ public class Render_GLEventListener implements GLEventListener {
   private Room room;
   private Table table;
   private Light light;
+  private SkyboxModel skybox;
 
   private Texture[] texture;   // array of textures
   
@@ -86,8 +89,12 @@ public class Render_GLEventListener implements GLEventListener {
     loadTextures(gl);
     light = new Light(gl);
     light.setCamera(camera);
-    room = new Room(gl, camera, light);
-    table = new Table(gl, camera, light, texture[T_CONTAINER_DIFFUSE], texture[T_CONTAINER_SPECULAR]);
+    skybox = new SkyboxModel(gl);
+    skybox.setCamera(camera);
+    Vec3 basecolor = new Vec3(0.5f, 0.5f, 0.5f);
+    Material material = new Material(basecolor, basecolor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
+    room = new Room(gl, camera, light, skybox);
+    table = new Table(gl, camera, light, skybox, texture[T_CONTAINER_DIFFUSE], texture[T_CONTAINER_SPECULAR]);
   }
   
   public void render(GL3 gl) {
@@ -95,6 +102,8 @@ public class Render_GLEventListener implements GLEventListener {
 
     light.setPosition(getLightPosition());  // changing light position each frame
     light.render(gl);
+    skybox.setPosition(getSkyboxPosition());
+    skybox.render(gl);
 
     table.setModelMatrix(getModelMatrix(0));
     table.render(gl);
@@ -108,6 +117,14 @@ public class Render_GLEventListener implements GLEventListener {
     float x = 5.0f*(float)(Math.sin(Math.toRadians(elapsedTime*50)));
     float y = 6.0f;
     float z = 5.0f*(float)(Math.cos(Math.toRadians(elapsedTime*50)));
+    return new Vec3(x,y,z);
+  }
+
+  private Vec3 getSkyboxPosition() {
+    double elapsedTime = getSeconds()-startTime;
+    float x = 0.0f;
+    float y = (2.0f*(float)(Math.cos(Math.toRadians(elapsedTime*50))))+5.0f;
+    float z = 0.0f;
     return new Vec3(x,y,z);
   }
 
@@ -138,14 +155,19 @@ class Room {
   private Model[] wall;
   private Camera camera;
   private Light light;
+  private SkyboxModel skybox;
   private Texture t0,t1;
   private float size = 16f;
   private Texture texture_granite;
   private Texture texture_wall;
+  private Texture texture_egg_albedo;
+  private Texture texture_egg_specular;
+  private Model egg;
 
-  public Room(GL3 gl, Camera c, Light l) {
+  public Room(GL3 gl, Camera c, Light l, SkyboxModel s) {
     camera = c;
     light = l;
+    skybox = s;
     this.t0 = t0;
     this.t1 = t1;
     loadTextures(gl);
@@ -153,15 +175,16 @@ class Room {
     wall[0] = makeWall0(gl);
     wall[1] = makeWall1(gl);
     wall[2] = makeWall2(gl);
+    wall[3] = makeWall3(gl);
+    egg = makeEgg(gl);
   }
 
   private void loadTextures(GL3 gl) {
     texture_wall = TextureLibrary.loadTexture(gl, "src/resources/textures/wall.jpg");
     texture_granite = TextureLibrary.loadTexture(gl, "src/resources/textures/granite.jpg");
+    texture_egg_albedo = TextureLibrary.loadTexture(gl, "src/resources/textures/Egg_Texture.png");
+    texture_egg_specular = TextureLibrary.loadTexture(gl, "src/resources/textures/specular_egg.jpg");
   }
-
-  // There is repetion in each of the following methods 
-  // An alternative would attempt to remove the repetition
  
   private Model makeWall0(GL3 gl) {
     // grey basecolor with main colour given by texture map
@@ -172,8 +195,7 @@ class Room {
     modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
     Mesh mesh = new Mesh(gl, TwoTriangles.vertices.clone(), TwoTriangles.indices.clone());
     Shader shader = new Shader(gl, "src/render/code/shaders/vs_tt_05.txt", "src/render/code/shaders/fs_tt_05.txt");
-    Model model = new Model(gl, camera, light, shader, material, modelMatrix, mesh, texture_granite);
-    return model;
+    return new Model(gl, camera, light, skybox, shader, material, modelMatrix, mesh, texture_granite);
   }
 
   private Model makeWall1(GL3 gl) {
@@ -188,36 +210,65 @@ class Room {
     modelMatrix = Mat4.multiply(Mat4Transform.translate(size*0.5f,size*0.5f,0), modelMatrix);
     Mesh mesh = new Mesh(gl, TwoTriangles.vertices.clone(), TwoTriangles.indices.clone());
     Shader shader = new Shader(gl, "src/render/code/shaders/vs_tt_05.txt", "src/render/code/shaders/fs_tt_05.txt");
-    Model model = new Model(gl, camera, light, shader , material, modelMatrix, mesh, texture_wall);
-    return model;
+    return new Model(gl, camera, light, skybox, shader , material, modelMatrix, mesh, texture_wall);
   }
 
   private Model makeWall2(GL3 gl) {
-    Vec3 basecolor = new Vec3(0.5f, 0.5f, 0.5f);
-    Material material = new Material(basecolor, basecolor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
+    Vec3 baseColor = new Vec3(0.5f, 0.5f, 0.5f);
+    Material material = new Material(baseColor, baseColor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
     // side wall
     Mat4 modelMatrix = new Mat4(1);
     modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
-    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(180), modelMatrix);
     modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
     modelMatrix = Mat4.multiply(Mat4Transform.translate(-size*0.5f,size*0.5f,0), modelMatrix);
     Mesh mesh = new Mesh(gl, TwoTriangles.vertices.clone(), TwoTriangles.indices.clone());
     Shader shader = new Shader(gl, "src/render/code/shaders/vs_tt_05.txt", "src/render/code/shaders/fs_tt_05.txt");
-    // no texture on this model
-    Model model = new Model(gl, camera, light, shader, material, modelMatrix, mesh);
-    return model;
+    return new Model(gl, camera, light, skybox, shader, material, modelMatrix, mesh, texture_wall);
+  }
+
+  private Model makeWall3(GL3 gl) {
+    Vec3 baseColor = new Vec3(0.5f, 0.5f, 0.5f);
+    Material material = new Material(baseColor, baseColor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
+    // forward wall
+    Mat4 modelMatrix = new Mat4(1);
+    modelMatrix = Mat4.multiply(Mat4Transform.scale(size,1f,size), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundX(90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(180), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
+    //modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundX(90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.translate(0,size*0.5f,size*0.5f), modelMatrix);
+    Mesh mesh = new Mesh(gl, TwoTriangles.vertices.clone(), TwoTriangles.indices.clone());
+    Shader shader = new Shader(gl, "src/render/code/shaders/vs_tt_05.txt", "src/render/code/shaders/fs_tt_05.txt");
+    return new Model(gl, camera, light, skybox, shader, material, modelMatrix, mesh, texture_wall);
+  }
+
+  private Model makeEgg(GL3 gl) {
+    Mesh eggModel = new Mesh(gl, Egg.vertices.clone(), Egg.indices.clone());
+    Shader shader = new Shader(gl, "src/render/code/shaders/vs_sphere_04.txt", "src/render/code/shaders/fs_sphere_04.txt");
+
+    Material material = new Material(new Vec3(1.0f, 0.5f, 0.31f), new Vec3(1.0f, 0.5f, 0.31f), new Vec3(0.5f, 0.5f, 0.5f), 32.0f);
+    Mat4 modelMatrix = Mat4.multiply(Mat4Transform.scale(2,2,2), Mat4Transform.translate(-0.6f,0.0f,0.0f));
+    modelMatrix = Mat4.multiply(Mat4Transform.rotateAroundZ(-90), modelMatrix);
+    modelMatrix = Mat4.multiply(Mat4Transform.translate(0,4,0), modelMatrix);
+
+    return new Model(gl, camera, light, skybox, shader, material, modelMatrix, eggModel, texture_egg_albedo, texture_egg_specular);
   }
 
   public void render(GL3 gl) {
-    for (int i=0; i<3; i++) {
-       wall[i].render(gl);
+    for (Model model : wall) {
+      model.render(gl);
     }
+    skybox.render(gl);
+    egg.render(gl);
   }
 
   public void dispose(GL3 gl) {
-    for (int i=0; i<3; i++) {
-      wall[i].dispose(gl);
+    for (Model model : wall) {
+      model.dispose(gl);
     }
+    skybox.render(gl);
+    egg.render(gl);
   }
 }
 
@@ -227,20 +278,20 @@ class Table {
 
   private Model[] tableLegs;
 
-  public Table(GL3 gl, Camera camera, Light light, Texture t_diffuse, Texture t_specular) {
+  public Table(GL3 gl, Camera camera, Light light, SkyboxModel skybox, Texture t_diffuse, Texture t_specular) {
     //Tabletop
     Mesh mesh = new Mesh(gl, TableTop.vertices.clone(), TableTop.indices.clone());
     Shader shader = new Shader(gl, "src/render/code/shaders/vs_cube_04.txt", "src/render/code/shaders/fs_cube_04.txt");
     Material material = new Material(new Vec3(1.0f, 0.5f, 0.31f), new Vec3(1.0f, 0.5f, 0.31f), new Vec3(0.5f, 0.5f, 0.5f), 32.0f);
     // diffuse and specular textures
-    tableTop = new Model(gl, camera, light, shader, material, new Mat4(1), mesh, t_diffuse, t_specular);
+    tableTop = new Model(gl, camera, light, skybox, shader, material, new Mat4(1), mesh, t_diffuse, t_specular);
 
     //Table leg
     mesh = new Mesh(gl, TableLeg.vertices.clone(), TableLeg.indices.clone());
-    tableLegs = new Model[]{new Model(gl, camera, light, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
-                            new Model(gl, camera, light, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
-                            new Model(gl, camera, light, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
-                            new Model(gl, camera, light, shader, material, new Mat4(1), mesh, t_diffuse, t_specular)};
+    tableLegs = new Model[]{new Model(gl, camera, light, skybox, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
+                            new Model(gl, camera, light, skybox, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
+                            new Model(gl, camera, light, skybox, shader, material, new Mat4(1), mesh, t_diffuse, t_specular),
+                            new Model(gl, camera, light, skybox, shader, material, new Mat4(1), mesh, t_diffuse, t_specular)};
   }
 
   public void setModelMatrix(Mat4 m) {

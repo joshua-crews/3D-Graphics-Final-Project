@@ -16,36 +16,30 @@ public class Model {
   private Mat4 modelMatrix;
   private Camera camera;
   private Light light;
+  private SkyboxModel skybox;
   
-  public Model(GL3 gl, Camera camera, Light light, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh, Texture textureId1, Texture textureId2) {
+  public Model(GL3 gl, Camera camera, Light light, SkyboxModel skybox, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh, Texture textureId1, Texture textureId2) {
     this.mesh = mesh;
     this.material = material;
     this.modelMatrix = modelMatrix;
     this.shader = shader;
     this.camera = camera;
     this.light = light;
+    this.skybox = skybox;
     this.textureId1 = textureId1;
     this.textureId2 = textureId2;
   }
   
-  public Model(GL3 gl, Camera camera, Light light, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh, Texture textureId1) {
-    this(gl, camera, light, shader, material, modelMatrix, mesh, textureId1, null);
+  public Model(GL3 gl, Camera camera, Light light, SkyboxModel skybox, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh, Texture textureId1) {
+    this(gl, camera, light, skybox, shader, material, modelMatrix, mesh, textureId1, null);
   }
   
-  public Model(GL3 gl, Camera camera, Light light, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh) {
-    this(gl, camera, light, shader, material, modelMatrix, mesh, null, null);
+  public Model(GL3 gl, Camera camera, Light light, SkyboxModel skybox, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh) {
+    this(gl, camera, light, skybox, shader, material, modelMatrix, mesh, null, null);
   }
   
   public void setModelMatrix(Mat4 m) {
     modelMatrix = m;
-  }
-  
-  public void setCamera(Camera camera) {
-    this.camera = camera;
-  }
-  
-  public void setLight(Light light) {
-    this.light = light;
   }
 
   public void render(GL3 gl, Mat4 modelMatrix) {

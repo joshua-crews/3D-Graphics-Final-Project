@@ -6,13 +6,11 @@ import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
   
 public class Light {
-  
+
   private Material material;
   private Vec3 position;
-  private Mat4 model;
   private Shader shader;
   private Camera camera;
-  //private Mat4 perspective;
     
   public Light(GL3 gl) {
     material = new Material();
@@ -20,7 +18,6 @@ public class Light {
     material.setDiffuse(0.7f, 0.7f, 0.7f);
     material.setSpecular(0.7f, 0.7f, 0.7f);
     position = new Vec3(3f,2f,1f);
-    model = new Mat4(1);
     
     fillBuffers(gl);
     shader = new Shader(gl, "src/render/code/shaders/vs_light_01.txt", "src/render/code/shaders/fs_light_01.txt");
@@ -32,18 +29,8 @@ public class Light {
     position.z = v.z;
   }
   
-  public void setPosition(float x, float y, float z) {
-    position.x = x;
-    position.y = y;
-    position.z = z;
-  }
-  
   public Vec3 getPosition() {
     return position;
-  }
-  
-  public void setMaterial(Material m) {
-    material = m;
   }
   
   public Material getMaterial() {
@@ -54,11 +41,7 @@ public class Light {
     this.camera = camera;
   }
   
-  /*public void setPerspective(Mat4 perspective) {
-    this.perspective = perspective;
-  }*/
-  
-  public void render(GL3 gl) { //, Mat4 perspective, Mat4 view) {
+  public void render(GL3 gl) {
     Mat4 model = new Mat4(1);
     model = Mat4.multiply(Mat4Transform.scale(0.3f,0.3f,0.3f), model);
     model = Mat4.multiply(Mat4Transform.translate(position), model);
@@ -79,44 +62,35 @@ public class Light {
     gl.glDeleteVertexArrays(1, vertexArrayId, 0);
     gl.glDeleteBuffers(1, elementBufferId, 0);
   }
-
-    // ***************************************************
-  /* THE DATA
-   */
-  // anticlockwise/counterclockwise ordering
   
-    private float[] vertices = new float[] {  // x,y,z
-      -0.5f, -0.5f, -0.5f,  // 0
-      -0.5f, -0.5f,  0.5f,  // 1
-      -0.5f,  0.5f, -0.5f,  // 2
-      -0.5f,  0.5f,  0.5f,  // 3
-       0.5f, -0.5f, -0.5f,  // 4
-       0.5f, -0.5f,  0.5f,  // 5
-       0.5f,  0.5f, -0.5f,  // 6
-       0.5f,  0.5f,  0.5f   // 7
+    private final float[] vertices = new float[] {
+      -0.5f, -0.5f, -0.5f,
+      -0.5f, -0.5f,  0.5f,
+      -0.5f,  0.5f, -0.5f,
+      -0.5f,  0.5f,  0.5f,
+       0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f,  0.5f,
+       0.5f,  0.5f, -0.5f,
+       0.5f,  0.5f,  0.5f
      };
     
-    private int[] indices =  new int[] {
-      0,1,3, // x -ve 
-      3,2,0, // x -ve
-      4,6,7, // x +ve
-      7,5,4, // x +ve
-      1,5,7, // z +ve
-      7,3,1, // z +ve
-      6,4,0, // z -ve
-      0,2,6, // z -ve
-      0,4,5, // y -ve
-      5,1,0, // y -ve
-      2,3,7, // y +ve
-      7,6,2  // y +ve
+    private final int[] indices =  new int[] {
+      0,1,3,
+      3,2,0,
+      4,6,7,
+      7,5,4,
+      1,5,7,
+      7,3,1,
+      6,4,0,
+      0,2,6,
+      0,4,5,
+      5,1,0,
+      2,3,7,
+      7,6,2
     };
     
   private int vertexStride = 3;
   private int vertexXYZFloats = 3;
-  
-  // ***************************************************
-  /* THE LIGHT BUFFERS
-   */
 
   private int[] vertexBufferId = new int[1];
   private int[] vertexArrayId = new int[1];
@@ -140,8 +114,7 @@ public class Light {
     gl.glGenBuffers(1, elementBufferId, 0);
     IntBuffer ib = Buffers.newDirectIntBuffer(indices);
     gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, elementBufferId[0]);
-    gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, Integer.BYTES * indices.length, ib, GL.GL_STATIC_DRAW);
-    //gl.glBindVertexArray(0);  // remove this so shader can be validated. Should be ok as any new object will bind its own VAO
+    gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, (long) Integer.BYTES * indices.length, ib, GL.GL_STATIC_DRAW);
   } 
 
 }
