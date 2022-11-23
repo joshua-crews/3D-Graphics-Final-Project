@@ -23,10 +23,11 @@ public class Mesh {
     fillBuffers(gl);
   }
   
-  public void render(GL3 gl) {
+  public void render(GL3 gl, Boolean renderDepth) {
     gl.glBindVertexArray(vertexArrayId[0]);
     gl.glDrawElements(GL.GL_TRIANGLES, indices.length, GL.GL_UNSIGNED_INT, 0);
     gl.glBindVertexArray(0);
+    //gl.glDepthMask(renderDepth);
   }
 
   private void fillBuffers(GL3 gl) {

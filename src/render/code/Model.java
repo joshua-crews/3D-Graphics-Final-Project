@@ -1,8 +1,6 @@
 package render.code;
 
 import render.code.gmaths.*;
-import java.nio.*;
-import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.texture.*;
 
@@ -37,9 +35,17 @@ public class Model {
   public Model(GL3 gl, Camera camera, Light light, SkyboxModel skybox, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh) {
     this(gl, camera, light, skybox, shader, material, modelMatrix, mesh, null, null);
   }
+
+  public Model(GL3 gl, Camera camera, Shader shader, Material material, Mat4 modelMatrix, Mesh mesh, Texture textureId1) {
+    this(gl, camera, null, null, shader, material, modelMatrix, mesh, textureId1, null);
+  }
   
   public void setModelMatrix(Mat4 m) {
     modelMatrix = m;
+  }
+
+  public Mat4 getModelMatrix() {
+    return modelMatrix;
   }
 
   public void render(GL3 gl, Mat4 modelMatrix) {
@@ -50,10 +56,18 @@ public class Model {
     
     shader.setVec3(gl, "viewPos", camera.getPosition());
 
-    shader.setVec3(gl, "light.position", light.getPosition());
-    shader.setVec3(gl, "light.ambient", light.getMaterial().getAmbient());
-    shader.setVec3(gl, "light.diffuse", light.getMaterial().getDiffuse());
-    shader.setVec3(gl, "light.specular", light.getMaterial().getSpecular());
+    if (light != null) {
+      shader.setVec3(gl, "light.position", light.getPosition());
+      shader.setVec3(gl, "light.ambient", light.getMaterial().getAmbient());
+      shader.setVec3(gl, "light.diffuse", light.getMaterial().getDiffuse());
+      shader.setVec3(gl, "light.specular", light.getMaterial().getSpecular());
+    } else {
+      // For the skybox
+      shader.setVec3(gl, "light.position", new Vec3(0f, 0f, 0f));
+      shader.setVec3(gl, "light.ambient", new Vec3(0.3f, 0.3f, 0.3f));
+      shader.setVec3(gl, "light.diffuse", new Vec3(0.7f, 0.7f, 0.7f));
+      shader.setVec3(gl, "light.specular", new Vec3(0.7f, 0.7f, 0.7f));
+    }
 
     shader.setVec3(gl, "material.ambient", material.getAmbient());
     shader.setVec3(gl, "material.diffuse", material.getDiffuse());
@@ -70,7 +84,7 @@ public class Model {
       gl.glActiveTexture(GL.GL_TEXTURE1);
       textureId2.bind(gl);  // uses JOGL Texture class
     }
-    mesh.render(gl);
+    mesh.render(gl, light != null || skybox != null);
   } 
   
   public void render(GL3 gl) {

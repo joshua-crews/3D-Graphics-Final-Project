@@ -89,10 +89,7 @@ public class Render_GLEventListener implements GLEventListener {
     loadTextures(gl);
     light = new Light(gl);
     light.setCamera(camera);
-    skybox = new SkyboxModel(gl);
-    skybox.setCamera(camera);
-    Vec3 basecolor = new Vec3(0.5f, 0.5f, 0.5f);
-    Material material = new Material(basecolor, basecolor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
+    skybox = new SkyboxModel(gl, camera, camera.getPosition());
     room = new Room(gl, camera, light, skybox);
     table = new Table(gl, camera, light, skybox, texture[T_CONTAINER_DIFFUSE], texture[T_CONTAINER_SPECULAR]);
   }
@@ -100,9 +97,9 @@ public class Render_GLEventListener implements GLEventListener {
   public void render(GL3 gl) {
     gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-    light.setPosition(getLightPosition());  // changing light position each frame
+    light.setPosition(getLightPosition());
     light.render(gl);
-    skybox.setPosition(getSkyboxPosition());
+    skybox.setPosition(camera.getPosition());
     skybox.render(gl);
 
     table.setModelMatrix(getModelMatrix(0));
@@ -120,14 +117,6 @@ public class Render_GLEventListener implements GLEventListener {
     return new Vec3(x,y,z);
   }
 
-  private Vec3 getSkyboxPosition() {
-    double elapsedTime = getSeconds()-startTime;
-    float x = 0.0f;
-    float y = (2.0f*(float)(Math.cos(Math.toRadians(elapsedTime*50))))+5.0f;
-    float z = 0.0f;
-    return new Vec3(x,y,z);
-  }
-
   // This method is used to set a random position for each container 
   // and a rotation based on the elapsed time.
   private Mat4 getModelMatrix(int i) {
@@ -136,10 +125,6 @@ public class Render_GLEventListener implements GLEventListener {
     return m;
   }
   
-    // ***************************************************
-  /* TIME
-   */ 
-  
   private double startTime;
   
   private double getSeconds() {
@@ -147,8 +132,6 @@ public class Render_GLEventListener implements GLEventListener {
   }
   
 }
-
-// I've used an inner class here. A separate class would be better.
 
 class Room {
 
@@ -259,7 +242,6 @@ class Room {
     for (Model model : wall) {
       model.render(gl);
     }
-    skybox.render(gl);
     egg.render(gl);
   }
 
@@ -267,7 +249,6 @@ class Room {
     for (Model model : wall) {
       model.dispose(gl);
     }
-    skybox.render(gl);
     egg.render(gl);
   }
 }

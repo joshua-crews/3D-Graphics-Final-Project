@@ -17,7 +17,7 @@ public class MainRenderer extends JFrame {
   private final FPSAnimator animator; 
 
   public static void main(String[] args) {
-    MainRenderer b1 = new MainRenderer("L05");
+    MainRenderer b1 = new MainRenderer("3D Graphics Project");
     b1.getContentPane().setPreferredSize(dimension);
     b1.pack();
     b1.setVisible(true);
@@ -100,7 +100,6 @@ class MyMouseInput extends MouseMotionAdapter {
     float sensitivity = 0.001f;
     float dx=(float) (ms.x-lastpoint.x)*sensitivity;
     float dy=(float) (ms.y-lastpoint.y)*sensitivity;
-    //System.out.println("dy,dy: "+dx+","+dy);
     if (e.getModifiers()==MouseEvent.BUTTON1_MASK)
       camera.updateYawPitch(dx, -dy);
     lastpoint = ms;
