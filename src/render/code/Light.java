@@ -4,20 +4,24 @@ import render.code.gmaths.*;
 import java.nio.*;
 import com.jogamp.common.nio.*;
 import com.jogamp.opengl.*;
-  
+
+import javax.swing.*;
+
 public class Light {
 
   private Material material;
   private Vec3 position;
   private Shader shader;
   private Camera camera;
+  private JSlider slider;
     
-  public Light(GL3 gl) {
+  public Light(GL3 gl, JSlider slide) {
     material = new Material();
     material.setAmbient(0.3f, 0.3f, 0.3f);
     material.setDiffuse(0.7f, 0.7f, 0.7f);
     material.setSpecular(0.7f, 0.7f, 0.7f);
     position = new Vec3(3f,2f,1f);
+    slider = slide;
     
     fillBuffers(gl);
     shader = new Shader(gl, "src/render/code/shaders/vs_light_01.txt", "src/render/code/shaders/fs_light_01.txt");
@@ -40,10 +44,14 @@ public class Light {
   public void setCamera(Camera camera) {
     this.camera = camera;
   }
+
+  public float getLightLevel() {
+    return slider.getValue()/100.0f;
+  }
   
   public void render(GL3 gl) {
     Mat4 model = new Mat4(1);
-    model = Mat4.multiply(Mat4Transform.scale(0.3f,0.3f,0.3f), model);
+    model = Mat4.multiply(Mat4Transform.scale(0.0f,0.0f,0.0f), model);
     model = Mat4.multiply(Mat4Transform.translate(position), model);
     
     Mat4 mvpMatrix = Mat4.multiply(camera.getPerspectiveMatrix(), Mat4.multiply(camera.getViewMatrix(), model));

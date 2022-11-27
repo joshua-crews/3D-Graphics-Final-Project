@@ -18,6 +18,7 @@ public class SkyboxModel{
     private final String fragmentShaderPath = "src/render/code/shaders/fs_skybox.txt";
 
     private Vec3 position;
+    private float rotation = 0.0f;
 
     public SkyboxModel(GL3 gl, Camera c, Vec3 pos) {
         camera = c;
@@ -110,7 +111,8 @@ public class SkyboxModel{
 
     public void render(GL3 gl) {
         for (Model model : boxSide) {
-            Mat4 newMatrix = Mat4.multiply(Mat4Transform.translate(position), model.getModelMatrix());
+            Mat4 newMatrix = Mat4.multiply(Mat4Transform.rotateAroundY(rotation), model.getModelMatrix());
+            newMatrix = Mat4.multiply(Mat4Transform.translate(position), newMatrix);
             newMatrix = Mat4.multiply(Mat4Transform.translate(0f, -30f, 0f), newMatrix);
             model.render(gl, newMatrix);
         }
@@ -124,5 +126,9 @@ public class SkyboxModel{
 
     public void setPosition(Vec3 pos) {
         position = pos;
+    }
+
+    public void setRotation(float rot) {
+        rotation = rot;
     }
 }

@@ -3,3 +3,5 @@ granite.jpg=https://freestocktextures.com/texture/granite-sleek-surface,817.html
 wall.jpg=https://freestocktextures.com/texture/rugged-white-wall,1543.html
 egg_textures=https://www.textures.com/download/PBR0388/137253
 skybox=https://polyhaven.com/a/kloofendal_38d_partly_cloudy_puresky
+wood_floor=https://www.textures.com/download/PBR0449/138321
+wood_wall=https://www.textures.com/download/PBR0573/138820
