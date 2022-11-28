@@ -196,6 +196,8 @@ class Room {
     private final float size = 16f;
     private Texture texture_floor;
     private Texture texture_wall;
+
+    //All lamp and egg code is mine
     private Texture texture_wall_specular;
     private Texture texture_egg_albedo;
     private Texture texture_egg_specular;
@@ -422,6 +424,7 @@ class Room {
         return new Model(gl, camera, light, skybox, shader, material, modelMatrix, mesh, texture_wall, texture_wall_specular, lamp1.getLight(), lamp2.getLight());
     }
 
+    //This function, while copied from the previous ones, is from my own doing
     private Model makeWall3(GL3 gl) {
         Vec3 baseColor = new Vec3(0.5f, 0.5f, 0.5f);
         Material material = new Material(baseColor, baseColor, new Vec3(0.3f, 0.3f, 0.3f), 4.0f);
@@ -473,6 +476,7 @@ class Room {
     }
 }
 
+//Table class is all mine
 class Table {
 
     private final Model tableTop;
