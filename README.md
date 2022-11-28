@@ -1,5 +1,5 @@
 # 3D Graphics Final Project
-![Status](https://img.shields.io/badge/Completion_Status-Incomplete-informational?style=flat&logo=java&logoColor=white&color=B50000)
+![Status](https://img.shields.io/badge/Completion_Status-Complete-informational?style=flat&logo=java&logoColor=white&color=00B500)
 
 This is a project submitted by Joshua Crews for COM6503 at the [University of Sheffield](https://www.sheffield.ac.uk/).
 
