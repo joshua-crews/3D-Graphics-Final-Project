@@ -5,3 +5,4 @@ This is a project submitted by Joshua Crews for COM6503 at the [University of Sh
 
 ## Local Compiling
 To run this code, you need the latest version of [JOGL2](https://jogamp.org/jogl/www/).
+When running, use the hatch class for program startup.

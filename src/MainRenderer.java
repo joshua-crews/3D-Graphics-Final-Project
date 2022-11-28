@@ -18,7 +18,7 @@ public class MainRenderer extends JFrame {
     private final FPSAnimator animator;
     private final JPanel canvasWindow;
 
-    public static void main(String[] args) {
+    public static void startProgram(String[] args) {
         if (GUI_HEIGHT >= HEIGHT) {
             System.out.println("The GUI height may not be larger than the window height!");
             System.exit(1);
